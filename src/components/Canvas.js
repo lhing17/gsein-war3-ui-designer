@@ -85,3 +85,5 @@ const DraggableComponent = ({ component, onMove }) => {
     </div>
   );
 };
+
+export default Canvas;

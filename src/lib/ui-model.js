@@ -23,3 +23,5 @@ const UIState = {
   selectedId: null, // 当前选中的组件ID
   version: '1.27' // War3版本
 };
+
+export { UIComponent, UIState };

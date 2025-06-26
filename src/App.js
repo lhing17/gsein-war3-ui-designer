@@ -1,11 +1,11 @@
 // src/App.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Classes } from '@blueprintjs/core';
-import Toolbox from './components/Toolbox';
-import Canvas from './components/Canvas';
-import PropertyPanel from './components/PropertyPanel';
-import CodePreview from './components/CodePreview';
-import { generateJassCode } from './lib/jass-generator';
+import Toolbox from './components/Toolbox.js';
+import Canvas from './components/Canvas.js';
+import PropertyPanel from './components/PropertyPanel.js';
+import CodePreview from './components/CodePreview.js';
+import { generateJassCode } from './lib/jass-generator.js';
 
 const App = () => {
   const [components, setComponents] = useState([]);
@@ -67,3 +67,5 @@ const App = () => {
     </div>
   );
 };
+
+export default App;

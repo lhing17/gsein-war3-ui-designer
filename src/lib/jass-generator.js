@@ -1,5 +1,5 @@
 // src/lib/jass-generator.js
-export const generateJassCode = (components) => {
+const generateJassCode = (components) => {
   let code = "// 自动生成的War3 UI代码\n";
   code += "function InitCustomUI takes nothing returns nothing\n";
   
@@ -18,6 +18,8 @@ export const generateJassCode = (components) => {
   code += "endfunction\n";
   return code;
 };
+
+export { generateJassCode };
 
 const generateButtonCode = (button) => {
   return `

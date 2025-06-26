@@ -59,3 +59,5 @@ const Toolbox = () => {
     </div>
   );
 };
+
+export default Toolbox;
