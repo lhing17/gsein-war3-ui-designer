@@ -1,0 +1,29 @@
+{
+  "name": "gsein-war3-ui-designer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "start-react": "react-scripts start",
+    "start-electron": "wait-on http://localhost:3000 && electron .",
+    "build": "react-scripts build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@blueprintjs/core": "^6.0.0",
+    "electron": "^37.1.0",
+    "react": "^18.3.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "wait-on": "^8.0.3"
+  }
+}
