@@ -10,7 +10,8 @@ const createWindow = () => {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      webSecurity: false
     },
     title: 'War3 UI设计器',
     icon: path.join(app.getAppPath(), 'public/icon.png')
@@ -20,7 +21,7 @@ const createWindow = () => {
   mainWindow.loadURL(
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000'
-      : `file://${path.join(app.getAppPath(), '../build/index.html')}`
+      : `file://${path.join(app.getAppPath(), 'build/index.html')}`
   );
 
   // 打开开发者工具
