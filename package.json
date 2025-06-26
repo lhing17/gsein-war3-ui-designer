@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
+    "react-scripts": "^5.0.1",
     "wait-on": "^8.0.3"
   }
 }
