@@ -1,13 +1,13 @@
 // src/components/Canvas.js
-import React, { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 
-const Canvas = ({ components, onAddComponent, onMoveComponent }) => {
+const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect }) => {
   const canvasRef = useRef(null);
   
-  // 处理从工具箱拖入
+  // 处理从工具箱拖入，或在画布上拖动
   const [, drop] = useDrop({
-    accept: 'TOOLBOX_ITEM',
+    accept: ['TOOLBOX_ITEM', 'CANVAS_ITEM'],
     drop: (item, monitor) => {
       const offset = monitor.getClientOffset();
       const canvasRect = canvasRef.current.getBoundingClientRect();
@@ -18,13 +18,18 @@ const Canvas = ({ components, onAddComponent, onMoveComponent }) => {
         y: offset.y - canvasRect.top
       };
       
-      // 添加新组件
-      onAddComponent({
-        type: item.type,
-        position,
-        size: { width: 100, height: 40 },
-        properties: { text: '新按钮' }
-      });
+      // 如果是来自工具箱的组件，需要转换为画布项目
+      if (item.type) {
+        // 添加新组件
+        onAddComponent({
+          type: item.type,
+          position,
+          size: { width: 100, height: 40 },
+          properties: { text: '新按钮' }
+        });
+      } else {
+        onMoveComponent(item.id, position);
+      }
     }
   });
 
@@ -46,6 +51,7 @@ const Canvas = ({ components, onAddComponent, onMoveComponent }) => {
           key={component.id}
           component={component}
           onMove={onMoveComponent}
+          onSelect={onSelect}
         />
       ))}
     </div>
@@ -53,18 +59,19 @@ const Canvas = ({ components, onAddComponent, onMoveComponent }) => {
 };
 
 // 可拖拽的UI组件
-const DraggableComponent = ({ component, onMove }) => {
+const DraggableComponent = ({ component, onMove, onSelect }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'CANVAS_ITEM',
     item: { id: component.id },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
-    })
+    }),
   });
 
   return (
     <div
       ref={drag}
+      onClick={() => onSelect(component.id)}
       style={{
         position: 'absolute',
         left: component.position.x,

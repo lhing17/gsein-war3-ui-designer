@@ -27,6 +27,7 @@ const App = () => {
     setComponents(components.map(comp => 
       comp.id === id ? { ...comp, position: newPosition } : comp
     ));
+    setSelectedId(id);
   };
   
   // 更新组件属性
