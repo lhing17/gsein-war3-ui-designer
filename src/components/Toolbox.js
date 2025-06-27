@@ -1,6 +1,4 @@
 // src/components/Toolbox.js
-import React from 'react';
-import { Button } from '@blueprintjs/core';
 import { useDrag } from 'react-dnd';
 
 const ToolboxItem = ({ type, label, icon }) => {
