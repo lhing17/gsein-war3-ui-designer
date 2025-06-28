@@ -1,7 +1,7 @@
 // src/components/PropertyPanel.js
 import { FormGroup, InputGroup, NumericInput, Switch } from '@blueprintjs/core';
 
-const PropertyPanel = ({ component, onUpdate }) => {
+const PropertyPanel = ({ components, component, onUpdate }) => {
   if (!component) {
     return (
       <div style={{
@@ -44,6 +44,22 @@ const PropertyPanel = ({ component, onUpdate }) => {
 
       <FormGroup label="组件类型">
         <InputGroup value={component.type} disabled />
+      </FormGroup>
+
+      <FormGroup label="父组件">
+        <select
+          value={component.properties.parentId || ''}
+          onChange={e => handlePropertyChange('parentId', e.target.value)}
+          style={{ width: '100%', padding: '5px', borderRadius: '3px', backgroundColor: '#293742', color: '#f5f8fa', border: '1px solid #394b59' }}
+        >
+          <option value="">无</option>
+          {components
+            .filter(c => c.id !== component.id && (c.properties.frameLevel || 0) <= (component.properties.frameLevel || 0))
+            .map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))
+          }
+        </select>
       </FormGroup>
 
       <FormGroup label="名称">

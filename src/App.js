@@ -85,6 +85,7 @@ const App = () => {
       </div>
       
       <PropertyPanel 
+        components={components}
         component={components.find(c => c.id === selectedId)}
         onUpdate={updateComponent}
       />
