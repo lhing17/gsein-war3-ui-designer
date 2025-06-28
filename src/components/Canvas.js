@@ -44,9 +44,10 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
       }}
       className="canvas"
       style={{ 
-        flex: 1, 
         backgroundColor: '#1c1e2a',
-        position: 'relative'
+        position: 'relative',
+        width: 800,
+        height: 600
       }}
     >
       {components.map(component => (
@@ -116,15 +117,11 @@ const DraggableComponent = ({ component, onMove, onSelect }) => {
     
     setSize(newSize);
     setPosition(newPosition);
-    // 可以在这里添加一个回调来更新组件的实际大小和位置
-    // 例如: onResize(component.id, newSize, newPosition);
   };
   
   const handleResizeStop = (e) => {
     e.stopPropagation();
     setIsResizing(false);
-    // 在这里可以添加一个回调来保存最终的大小和位置
-    // 例如: onResizeComplete(component.id, size, position);
     onMove(component.id, position);
   };
 

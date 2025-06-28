@@ -4,7 +4,7 @@ import React from 'react';
 const CodePreview = ({ code }) => {
   return (
     <div style={{ 
-      height: '200px', 
+      flex: 1,
       padding: '10px',
       backgroundColor: '#293742',
       borderTop: '1px solid #30404d',
