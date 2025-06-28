@@ -1,26 +1,27 @@
-import { useState, useEffect  } from 'react';// src/components/Canvas.js
+import { useState, useEffect } from 'react';// src/components/Canvas.js
 import { useRef } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import { Resizable } from 'react-resizable';
+import { CANVAS_CONFIG } from '../config/canvasConfig.js';
 
-const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect }) => {
+const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize }) => {
   const canvasRef = useRef(null);
-  
+
   // 处理从工具箱拖入，或在画布上拖动
   const [, drop] = useDrop({
     accept: ['TOOLBOX_ITEM', 'CANVAS_ITEM'],
     drop: (item, monitor) => {
       const offset = monitor.getClientOffset();
       const canvasRect = canvasRef.current.getBoundingClientRect();
-      
+
       // 计算在画布中的位置
       const initialOffset = monitor.getInitialClientOffset();
       const initialSourceOffset = monitor.getInitialSourceClientOffset();
       const position = {
-      x : offset.x - canvasRect.left - (initialOffset.x - initialSourceOffset.x),
-      y : offset.y - canvasRect.top - (initialOffset.y - initialSourceOffset.y)
+        x: offset.x - canvasRect.left - (initialOffset.x - initialSourceOffset.x),
+        y: offset.y - canvasRect.top - (initialOffset.y - initialSourceOffset.y)
       };
-      
+
       // 如果是来自工具箱的组件，需要转换为画布项目
       if (item.type) {
         // 添加新组件
@@ -31,31 +32,47 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
           properties: { text: '新按钮' }
         });
       } else {
+        // 否则直接移动组件
+        // 检查是否超出边界
+        if (position.x < 0) {
+          position.x = 0;
+        }
+        if (position.y < 0) {
+          position.y = 0;
+        }
+        if (position.x + (item.size?.width || 100) > CANVAS_CONFIG.width) {
+          position.x = CANVAS_CONFIG.width - (item.size?.width || 100);
+        }
+        if (position.y + (item.size?.height || 40) > CANVAS_CONFIG.height) {
+          position.y = CANVAS_CONFIG.height - (item.size?.height || 40);
+        }
+
         onMoveComponent(item.id, position);
       }
     }
   });
 
   return (
-    <div 
+    <div
       ref={(node) => {
         canvasRef.current = node;
         drop(node);
       }}
       className="canvas"
-      style={{ 
+      style={{
         backgroundColor: '#1c1e2a',
         position: 'relative',
-        width: 800,
-        height: 600
+        width: CANVAS_CONFIG.width,
+        height: CANVAS_CONFIG.height
       }}
     >
       {components.map(component => (
-        <DraggableComponent 
+        <DraggableComponent
           key={component.id}
           component={component}
           onMove={onMoveComponent}
           onSelect={onSelect}
+          onResize={onResize}
         />
       ))}
     </div>
@@ -63,7 +80,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
 };
 
 // 可拖拽的UI组件
-const DraggableComponent = ({ component, onMove, onSelect }) => {
+const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'CANVAS_ITEM',
     item: { id: component.id },
@@ -81,44 +98,57 @@ const DraggableComponent = ({ component, onMove, onSelect }) => {
       }
     }
   });
-  
+
   const [size, setSize] = useState(component.size);
   const [position, setPosition] = useState(component.position);
   const [isResizing, setIsResizing] = useState(false);
-  
+
   // 当父组件中的component.position更新时，同步更新内部状态
   useEffect(() => {
     setPosition(component.position);
   }, [component.position]);
-  
+
   const handleResizeStart = (e) => {
     // 阻止事件冒泡，防止触发拖拽
     e.stopPropagation();
     setIsResizing(true);
   };
-  
+
   const handleResize = (e, { size: newSize, handle }) => {
     e.stopPropagation();
-    
+
+    // 获取画布尺寸
+    const canvasWidth = CANVAS_CONFIG.width;
+    const canvasHeight = CANVAS_CONFIG.height;
+
     // 根据调整手柄的方向调整位置
     const newPosition = { ...position };
-    
+
     // 处理左侧调整
     if (handle.includes('w')) {
       const widthDelta = size.width - newSize.width;
       newPosition.x = position.x + widthDelta;
+      // 确保不会超出左边界
+      newPosition.x = Math.max(0, newPosition.x);
     }
-    
+
     // 处理顶部调整
     if (handle.includes('n')) {
       const heightDelta = size.height - newSize.height;
       newPosition.y = position.y + heightDelta;
+      // 确保不会超出上边界
+      newPosition.y = Math.max(0, newPosition.y);
     }
-    
+
+    // 确保不会超出右边界和下边界
+    newSize.width = Math.min(newSize.width, canvasWidth - newPosition.x);
+    newSize.height = Math.min(newSize.height, canvasHeight - newPosition.y);
+
     setSize(newSize);
     setPosition(newPosition);
+    onResize(component.id, newSize);
   };
-  
+
   const handleResizeStop = (e) => {
     e.stopPropagation();
     setIsResizing(false);
@@ -129,7 +159,7 @@ const DraggableComponent = ({ component, onMove, onSelect }) => {
   const wrapperRef = useRef(null);
 
   return (
-    <div 
+    <div
       ref={(node) => {
         wrapperRef.current = node;
         // 只有在不调整大小时才允许拖拽

@@ -1,11 +1,13 @@
 // src/components/CodePreview.js
 import React from 'react';
+import { CANVAS_CONFIG } from '../config/canvasConfig.js';
 
 const CodePreview = ({ code }) => {
   return (
     <div style={{ 
-      flex: 1,
-      padding: '10px',
+      width: CANVAS_CONFIG.width,
+      flex: '1',
+      padding: '10px 0',
       backgroundColor: '#293742',
       borderTop: '1px solid #30404d',
       overflowY: 'auto'
@@ -16,7 +18,6 @@ const CodePreview = ({ code }) => {
         fontSize: '12px',
         color: '#d9e1e8',
         backgroundColor: '#182026',
-        padding: '10px',
         borderRadius: '3px',
         overflowX: 'auto'
       }}>

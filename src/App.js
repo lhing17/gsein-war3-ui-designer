@@ -6,6 +6,7 @@ import Canvas from './components/Canvas.js';
 import PropertyPanel from './components/PropertyPanel.js';
 import CodePreview from './components/CodePreview.js';
 import { generateJassCode } from './lib/jass-generator.js';
+import { CANVAS_CONFIG } from './config/canvasConfig.js';
 
 const App = () => {
   const [components, setComponents] = useState([]);
@@ -31,6 +32,13 @@ const App = () => {
   };
   
   // 更新组件属性
+  const resizeComponent = (id, newSize) => {
+    setComponents(components.map(comp => 
+      comp.id === id ? { ...comp, size: newSize } : comp
+    ));
+  };
+  
+  // 更新组件属性
   const updateComponent = (id, updates) => {
     setComponents(components.map(comp => 
       comp.id === id ? { ...comp, ...updates } : comp
@@ -49,11 +57,12 @@ const App = () => {
     }}>
       <Toolbox />
       
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{  display: 'flex', flexDirection: 'column', width: CANVAS_CONFIG.width}}>
         <Canvas 
           components={components}
           onAddComponent={addComponent}
           onMoveComponent={moveComponent}
+          onResize={resizeComponent}
           selectedId={selectedId}
           onSelect={setSelectedId}
         />
