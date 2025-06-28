@@ -33,19 +33,6 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         });
       } else {
         // 否则直接移动组件
-        // 检查是否超出边界
-        if (position.x < 0) {
-          position.x = 0;
-        }
-        if (position.y < 0) {
-          position.y = 0;
-        }
-        if (position.x + (item.size?.width || 100) > CANVAS_CONFIG.width) {
-          position.x = CANVAS_CONFIG.width - (item.size?.width || 100);
-        }
-        if (position.y + (item.size?.height || 40) > CANVAS_CONFIG.height) {
-          position.y = CANVAS_CONFIG.height - (item.size?.height || 40);
-        }
 
         onMoveComponent(item.id, position);
       }
@@ -114,39 +101,52 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
     setIsResizing(true);
   };
 
-  const handleResize = (e, { size: newSize, handle }) => {
-    e.stopPropagation();
-
-    // 获取画布尺寸
-    const canvasWidth = CANVAS_CONFIG.width;
-    const canvasHeight = CANVAS_CONFIG.height;
-
-    // 根据调整手柄的方向调整位置
+  const calculateNewPosition = (handle, position, size, newSize) => {
     const newPosition = { ...position };
-
-    // 处理左侧调整
+    
     if (handle.includes('w')) {
       const widthDelta = size.width - newSize.width;
       newPosition.x = position.x + widthDelta;
-      // 确保不会超出左边界
-      newPosition.x = Math.max(0, newPosition.x);
     }
-
-    // 处理顶部调整
+    
     if (handle.includes('n')) {
       const heightDelta = size.height - newSize.height;
       newPosition.y = position.y + heightDelta;
-      // 确保不会超出上边界
-      newPosition.y = Math.max(0, newPosition.y);
     }
+    
+    return newPosition;
+  };
+  
+  const applyBoundaryConstraints = (position, size, canvasWidth, canvasHeight) => {
+    const constrainedPosition = { ...position };
+    let constrainedSize = { ...size };
+    
+    constrainedPosition.x = Math.max(0, constrainedPosition.x);
+    constrainedPosition.y = Math.max(0, constrainedPosition.y);
+    
+    constrainedSize.width = Math.min(constrainedSize.width, canvasWidth - constrainedPosition.x);
+    constrainedSize.height = Math.min(constrainedSize.height, canvasHeight - constrainedPosition.y);
+    
+    return { constrainedPosition, constrainedSize };
+  };
+  
+  // 处理调整大小
+  const handleResize = (e, { size: newSize, handle }) => {
+    e.stopPropagation();
+      
+    const newPosition = calculateNewPosition(handle, position, size, newSize);
 
-    // 确保不会超出右边界和下边界
-    newSize.width = Math.min(newSize.width, canvasWidth - newPosition.x);
-    newSize.height = Math.min(newSize.height, canvasHeight - newPosition.y);
-
-    setSize(newSize);
-    setPosition(newPosition);
-    onResize(component.id, newSize);
+    // 检查是否超出边界
+    const { constrainedPosition, constrainedSize } = applyBoundaryConstraints(
+      newPosition, 
+      newSize, 
+      CANVAS_CONFIG.width, 
+      CANVAS_CONFIG.height
+    );
+    
+    setSize(constrainedSize);
+    setPosition(constrainedPosition);
+    onResize(component.id, constrainedSize);
   };
 
   const handleResizeStop = (e) => {

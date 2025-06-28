@@ -25,6 +25,20 @@ const App = () => {
   
   // 移动组件
   const moveComponent = (id, newPosition) => {
+    // 检查是否超出边界
+    const item = components.find(c => c.id === id);
+    if (newPosition.x < 0) {
+      newPosition.x = 0;
+    }
+    if (newPosition.y < 0) {
+      newPosition.y = 0;
+    }
+    if (newPosition.x + (item.size?.width || 100) > CANVAS_CONFIG.width) {
+      newPosition.x = CANVAS_CONFIG.width - (item.size?.width || 100);
+    }
+    if (newPosition.y + (item.size?.height || 40) > CANVAS_CONFIG.height) {
+      newPosition.y = CANVAS_CONFIG.height - (item.size?.height || 40);
+    }
     setComponents(components.map(comp => 
       comp.id === id ? { ...comp, position: newPosition } : comp
     ));
