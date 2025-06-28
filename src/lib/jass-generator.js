@@ -1,3 +1,5 @@
+import { CANVAS_CONFIG } from "../config/canvasConfig.js";
+
 // src/lib/jass-generator.js
 const generateJassCode = (components) => {
   let code = "// 自动生成的War3 UI代码\n";
@@ -9,7 +11,7 @@ const generateJassCode = (components) => {
         code += generateButtonCode(comp);
         break;
       case 'TEXT':
-        code += generateTextCode(comp);
+        code += generateTextCode(comp, components);
         break;
       // 其他组件类型...
     }
@@ -36,13 +38,19 @@ const generateButtonCode = (button) => {
   `;
 };
 
-const generateTextCode = (text) => {
+const generateTextCode = (text, components) => {
+  // 获取父级组件
+  let parent = components.find(comp => comp.id === text.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  // 计算相对位置
+  let relativeX = text.position.x - parent.position.x
+  let relativeY = text.position.y - parent.position.y
+  // 计算war3坐标下的相对位置
+  let war3RelativeX = parseFloat((relativeX / CANVAS_CONFIG.width * 0.8).toFixed(4));
+  let war3RelativeY = parseFloat((relativeY / CANVAS_CONFIG.height * 0.6).toFixed(4));
   return `
     // 创建文本: ${text.name || '未命名文本'}
-    local framehandle ${text.name} = BlzCreateFrameByType("TEXT", "", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), "", 0)
-    call BlzFrameSetAbsPoint(${text.name}, FRAMEPOINT_CENTER, ${text.position.x}, ${text.position.y})
-    call BlzFrameSetSize(${text.name}, ${text.size.width}, ${text.size.height})
-    call BlzFrameSetText(${text.name}, "${text.properties.text || ''}")
-    call BlzFrameSetTextAlignment(${text.name}, TEXT_JUSTIFY_CENTER, TEXT_JUSTIFY_MIDDLE)
+    local Frame ${text.name} = Frame.newText1(${parent.name}, "${text.properties.text || ''}", "TXA${text.properties.fontSize || 12}")
+    call ${text.name}.setPoint(TOPLEFT, ${parent.name}, TOPLEFT, ${war3RelativeX}, ${war3RelativeY})
+    call ${text.name}.setColor255(${text.properties.red || 0}, ${text.properties.green || 0}, ${text.properties.blue || 0})
   `;
 };
