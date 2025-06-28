@@ -42,6 +42,10 @@ const PropertyPanel = ({ component, onUpdate }) => {
         <InputGroup value={component.id} disabled />
       </FormGroup>
 
+      <FormGroup label="组件类型">
+        <InputGroup value={component.type} disabled />
+      </FormGroup>
+
       <FormGroup label="名称">
         <InputGroup
           value={component.name}
@@ -147,6 +151,24 @@ const PropertyPanel = ({ component, onUpdate }) => {
 
 
         </>
+      )}
+      {component.type === 'IMAGE' && (
+        <FormGroup label="图片">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => {
+              const file = e.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  handlePropertyChange('imageSrc', event.target.result);
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
+        </FormGroup>
       )}
 
     </div>

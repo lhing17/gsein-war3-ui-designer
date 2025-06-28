@@ -172,7 +172,7 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
       fontSize: `${component.properties.fontSize || 12}px`,
     },
     DEFAULT: {
-      backgroundColor: '#3498db',
+      backgroundColor: `rgb(${component.properties.red || 0}, ${component.properties.green || 0}, ${component.properties.blue || 0})`,
       border: '1px solid #2980b9',
       color: 'white'
     }
@@ -243,7 +243,15 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
             ...(styleMap[component.type] || styleMap.DEFAULT)
           }}
         >
-          {component.properties.text}
+          {component.type === 'IMAGE' && component.properties.imageSrc ? (
+            <img 
+              src={component.properties.imageSrc} 
+              alt="" 
+              style={{ width: '100%', height: '100%', objectFit: 'fill' }}
+            />
+          ) : (
+            component.properties.text
+          )}
         </div>
       </Resizable>
     </div>
