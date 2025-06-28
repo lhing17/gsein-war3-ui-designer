@@ -172,6 +172,7 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
         left: position.x,
         top: position.y,
         opacity: isDragging ? 0.5 : 1,
+        zIndex: component.properties.frameLevel
         // 移除cursor: 'move'，让调整手柄的光标样式能够正常显示
       }}
       onClick={(e) => {

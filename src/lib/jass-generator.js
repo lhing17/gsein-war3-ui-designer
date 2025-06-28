@@ -32,7 +32,7 @@ const generateButtonCode = (button) => {
     // 按钮事件
     local trigger ${button.name}Trigger = CreateTrigger()
     call BlzTriggerRegisterFrameEvent(${button.name}Trigger, ${button.name}, FRAMEEVENT_CONTROL_CLICK)
-    call TriggerAddAction(${button.name}Trigger, function ${button.events.onClick || 'DoNothing'})
+    call TriggerAddAction(${button.name}Trigger, function ${button.events && button.events.onClick || 'DoNothing'})
   `;
 };
 

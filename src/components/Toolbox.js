@@ -32,8 +32,8 @@ const ToolboxItem = ({ type, label, icon }) => {
 
 const Toolbox = () => {
   const components = [
-    { type: 'BUTTON', label: '按钮', icon: '🔘' },
-    { type: 'TEXT', label: '文本框', icon: '📝' },
+    { type: 'IMAGE_BUTTON', label: '图片按钮', icon: '🔘' },
+    { type: 'TEXT', label: '文本', icon: '📝' },
     { type: 'IMAGE', label: '图片', icon: '🖼️' },
     { type: 'PANEL', label: '面板', icon: '🧱' }
   ];

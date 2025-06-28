@@ -1,5 +1,4 @@
 // src/components/PropertyPanel.js
-import React from 'react';
 import { FormGroup, InputGroup, NumericInput, Switch } from '@blueprintjs/core';
 
 const PropertyPanel = ({ component, onUpdate }) => {
