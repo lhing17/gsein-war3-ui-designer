@@ -25,12 +25,18 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
       // 如果是来自工具箱的组件，需要转换为画布项目
       if (item.type) {
         // 添加新组件
-        onAddComponent({
+        let props = {
           type: item.type,
           position,
           size: { width: 100, height: 40 },
-          properties: { text: '新按钮' }
-        });
+        }
+
+        if (item.type === 'TEXT') {
+          props.properties = { text: '文本' };
+        } else {
+          props.properties = { };
+        }
+        onAddComponent(props);
       } else {
         // 否则直接移动组件
 
@@ -103,47 +109,47 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
 
   const calculateNewPosition = (handle, position, size, newSize) => {
     const newPosition = { ...position };
-    
+
     if (handle.includes('w')) {
       const widthDelta = size.width - newSize.width;
       newPosition.x = position.x + widthDelta;
     }
-    
+
     if (handle.includes('n')) {
       const heightDelta = size.height - newSize.height;
       newPosition.y = position.y + heightDelta;
     }
-    
+
     return newPosition;
   };
-  
+
   const applyBoundaryConstraints = (position, size, canvasWidth, canvasHeight) => {
     const constrainedPosition = { ...position };
     let constrainedSize = { ...size };
-    
+
     constrainedPosition.x = Math.max(0, constrainedPosition.x);
     constrainedPosition.y = Math.max(0, constrainedPosition.y);
-    
+
     constrainedSize.width = Math.min(constrainedSize.width, canvasWidth - constrainedPosition.x);
     constrainedSize.height = Math.min(constrainedSize.height, canvasHeight - constrainedPosition.y);
-    
+
     return { constrainedPosition, constrainedSize };
   };
-  
+
   // 处理调整大小
   const handleResize = (e, { size: newSize, handle }) => {
     e.stopPropagation();
-      
+
     const newPosition = calculateNewPosition(handle, position, size, newSize);
 
     // 检查是否超出边界
     const { constrainedPosition, constrainedSize } = applyBoundaryConstraints(
-      newPosition, 
-      newSize, 
-      CANVAS_CONFIG.width, 
+      newPosition,
+      newSize,
+      CANVAS_CONFIG.width,
       CANVAS_CONFIG.height
     );
-    
+
     setSize(constrainedSize);
     setPosition(constrainedPosition);
     onResize(component.id, constrainedSize);
@@ -157,6 +163,22 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
 
   // 创建一个包装div来处理拖拽和调整大小
   const wrapperRef = useRef(null);
+
+  const styleMap = {
+    TEXT: {
+      backgroundColor: 'transparent',
+      border: 'none',
+      color: `rgb(${component.properties.red || 0}, ${component.properties.green || 0}, ${component.properties.blue || 0})`,
+      fontSize: `${component.properties.fontSize || 12}px`,
+    },
+    DEFAULT: {
+      backgroundColor: '#3498db',
+      border: '1px solid #2980b9',
+      color: 'white'
+    }
+  };
+
+  const resizeHandles = component.type === 'TEXT' ? [] : ['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne'];
 
   return (
     <div
@@ -188,7 +210,7 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
         onResize={handleResize}
         onResizeStart={handleResizeStart}
         onResizeStop={handleResizeStop}
-        resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']} // 添加这一行，显示所有8个方向的调整手柄
+        resizeHandles={resizeHandles} // 添加这一行，显示所有8个方向的调整手柄
         handleStyles={{
           top: { cursor: 'n-resize', zIndex: 999 },
           right: { cursor: 'e-resize', zIndex: 999 },
@@ -214,13 +236,11 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
           style={{
             width: size.width,
             height: size.height,
-            backgroundColor: '#3498db',
-            border: '1px solid #2980b9',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
-            cursor: isResizing ? 'auto' : 'move' // 根据状态切换光标样式
+            cursor: isResizing ? 'auto' : 'move',
+            ...(styleMap[component.type] || styleMap.DEFAULT)
           }}
         >
           {component.properties.text}

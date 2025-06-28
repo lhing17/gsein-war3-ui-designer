@@ -81,14 +81,7 @@ const PropertyPanel = ({ component, onUpdate }) => {
         />
       </FormGroup>
 
-      {component.properties.text !== undefined && (
-        <FormGroup label="文本">
-          <InputGroup
-            value={component.properties.text}
-            onChange={e => handlePropertyChange('text', e.target.value)}
-          />
-        </FormGroup>
-      )}
+
 
       <FormGroup label="可见">
         <Switch
@@ -104,6 +97,58 @@ const PropertyPanel = ({ component, onUpdate }) => {
           min={0}
         />
       </FormGroup>
+
+      <FormGroup label="红色值">
+        <NumericInput
+          value={component.properties.red || 0}
+          onValueChange={value => handlePropertyChange('red', value)}
+          min={0}
+          max={255}
+        />
+      </FormGroup>
+
+      <FormGroup label="绿色值">
+        <NumericInput
+          value={component.properties.green || 0}
+          onValueChange={value => handlePropertyChange('green', value)}
+          min={0}
+          max={255}
+        />
+      </FormGroup>
+
+      <FormGroup label="蓝色值">
+        <NumericInput
+          value={component.properties.blue || 0}
+          onValueChange={value => handlePropertyChange('blue', value)}
+          min={0}
+          max={255}
+        />
+      </FormGroup>
+
+      {component.type === 'TEXT' && (
+        <>
+          {component.properties.text !== undefined && (
+            <FormGroup label="文本">
+              <InputGroup
+                value={component.properties.text}
+                onChange={e => handlePropertyChange('text', e.target.value)}
+              />
+            </FormGroup>
+          )}
+          
+          <FormGroup label="字体大小">
+            <NumericInput
+              value={component.properties.fontSize || 12}
+              onValueChange={value => handlePropertyChange('fontSize', value)}
+              min={1}
+              max={25}
+            />
+          </FormGroup>
+
+
+        </>
+      )}
+
     </div>
   );
 };
