@@ -61,7 +61,9 @@ const App = () => {
   
   // 删除组件
   const deleteComponent = (id) => {
-    setComponents(components.filter(comp => comp.id !== id));
+    // 如果要删除的组件有子组件，将子组件的ID设置为null
+    const items = components.map(c => c.properties.parentId === id ? { ...c, properties: { ...c.properties, parentId: null } } : c);
+    setComponents(items.filter(comp => comp.id !== id));
     setSelectedId(null);
   };
   
