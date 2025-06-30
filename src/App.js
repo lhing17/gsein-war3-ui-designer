@@ -59,6 +59,12 @@ const App = () => {
     ));
   };
   
+  // 删除组件
+  const deleteComponent = (id) => {
+    setComponents(components.filter(comp => comp.id !== id));
+    setSelectedId(null);
+  };
+  
   // 生成JASS代码
   const jassCode = generateJassCode(components);
   
@@ -79,6 +85,7 @@ const App = () => {
           onResize={resizeComponent}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onDeleteComponent={deleteComponent}
         />
         
         <CodePreview code={jassCode} />

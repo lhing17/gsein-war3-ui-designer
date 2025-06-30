@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';// src/components/Canvas.js
+import { useState, useEffect } from 'react';
 import { useRef } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import { CANVAS_CONFIG } from '../config/canvasConfig.js';
 
-const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize }) => {
+const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize, onDeleteComponent }) => {
   const canvasRef = useRef(null);
 
   // 处理从工具箱拖入，或在画布上拖动
@@ -45,6 +45,20 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
     }
   });
 
+  // 处理键盘事件
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Delete' && selectedId) {
+        onDeleteComponent(selectedId);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedId, onDeleteComponent]);
+
   return (
     <div
       ref={(node) => {
@@ -52,6 +66,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         drop(node);
       }}
       className="canvas"
+      tabIndex={0} // 使div可聚焦以接收键盘事件
       style={{
         backgroundColor: '#1c1e2a',
         position: 'relative',
