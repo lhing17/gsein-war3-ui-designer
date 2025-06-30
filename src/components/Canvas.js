@@ -4,6 +4,16 @@ import { useDrop, useDrag } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import { CANVAS_CONFIG } from '../config/canvasConfig.js';
 
+// 定义键盘按键常量
+const DELETE_KEY = 'Delete';
+const ARROW_UP_KEY = 'ArrowUp';
+const ARROW_DOWN_KEY = 'ArrowDown';
+const ARROW_LEFT_KEY = 'ArrowLeft';
+const ARROW_RIGHT_KEY = 'ArrowRight';
+// 定义移动步长常量
+const NORMAL_STEP = 1;
+const FAST_STEP = 10;
+
 const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize, onDeleteComponent }) => {
   const canvasRef = useRef(null);
 
@@ -34,7 +44,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         if (item.type === 'TEXT') {
           props.properties = { text: '文本' };
         } else {
-          props.properties = { };
+          props.properties = {};
         }
         onAddComponent(props);
       } else {
@@ -48,16 +58,33 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
   // 处理键盘事件
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Delete' && selectedId) {
+      // 使用delete键删除组件
+      if (e.key === DELETE_KEY && selectedId) {
         onDeleteComponent(selectedId);
       }
+      // 使用方向键移动组件
+      if (selectedId && [ARROW_UP_KEY, ARROW_DOWN_KEY, ARROW_LEFT_KEY, ARROW_RIGHT_KEY].includes(e.key)) {
+        e.preventDefault();
+        const step = e.shiftKey ? FAST_STEP : NORMAL_STEP; // 按住Shift键移动更快
+        const component = components.find(c => c.id === selectedId);
+        if (component) {
+          const newPosition = { ...component.position };
+          switch (e.key) {
+            case ARROW_UP_KEY: newPosition.y -= step; break;
+            case ARROW_DOWN_KEY: newPosition.y += step; break;
+            case ARROW_LEFT_KEY: newPosition.x -= step; break;
+            case ARROW_RIGHT_KEY: newPosition.x += step; break;
+          }
+          onMoveComponent(selectedId, newPosition);
+        }
+      }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedId, onDeleteComponent]);
+  }, [selectedId, onDeleteComponent, onMoveComponent]);
 
   return (
     <div
@@ -259,9 +286,9 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
           }}
         >
           {component.type === 'IMAGE' && component.properties.imageSrc ? (
-            <img 
-              src={component.properties.imageSrc} 
-              alt="" 
+            <img
+              src={component.properties.imageSrc}
+              alt=""
               style={{ width: '100%', height: '100%', objectFit: 'fill' }}
             />
           ) : (
