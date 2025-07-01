@@ -15,6 +15,8 @@ const NORMAL_STEP = 1;
 const FAST_STEP = 10;
 
 const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize, onDeleteComponent }) => {
+  const [copiedComponent, setCopiedComponent] = useState(null);
+  const copiedComponentRef = useRef(null); // 添加一个 ref 来存储最新复制的组件
   const canvasRef = useRef(null);
 
   // 处理从工具箱拖入，或在画布上拖动
@@ -62,6 +64,38 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
       if (e.key === DELETE_KEY && selectedId) {
         onDeleteComponent(selectedId);
       }
+      // 复制组件
+      if (e.ctrlKey && e.key === 'c' && selectedId) {
+        e.preventDefault();
+        const component = components.find(c => c.id === selectedId);
+        if (component) {
+          setCopiedComponent(component);
+          copiedComponentRef.current = component; // 同时更新 ref
+        }
+      }
+      // 粘贴组件
+      if (e.ctrlKey && e.key === 'v' && copiedComponentRef.current) { // 使用 ref 而不是 state
+        e.preventDefault();
+        const component = copiedComponentRef.current;
+        const offset = 10; // 粘贴偏移量
+        const newPosition = {
+          x: component.position.x + offset,
+          y: component.position.y + offset
+        };
+        // 检查是否越界
+        if (newPosition.x + component.size.width > CANVAS_CONFIG.width) {
+          newPosition.x = component.position.x - offset;
+        }
+        if (newPosition.y + component.size.height > CANVAS_CONFIG.height) {
+          newPosition.y = component.position.y - offset;
+        }
+        
+        onAddComponent({
+          ...component,
+          position: newPosition,
+          name: `copy_${component.name}`
+        });
+      }
       // 使用方向键移动组件
       if (selectedId && [ARROW_UP_KEY, ARROW_DOWN_KEY, ARROW_LEFT_KEY, ARROW_RIGHT_KEY].includes(e.key)) {
         e.preventDefault();
@@ -78,13 +112,19 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
           onMoveComponent(selectedId, newPosition);
         }
       }
+      
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedId, onDeleteComponent, onMoveComponent]);
+  }, [selectedId, onDeleteComponent, onMoveComponent, components]);
+
+  // 当 copiedComponent 状态更新时，同步更新 ref
+  useEffect(() => {
+    copiedComponentRef.current = copiedComponent;
+  }, [copiedComponent]);
 
   return (
     <div
@@ -108,6 +148,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
           onMove={onMoveComponent}
           onSelect={onSelect}
           onResize={onResize}
+          selectedId={selectedId}
         />
       ))}
     </div>
@@ -115,7 +156,8 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
 };
 
 // 可拖拽的UI组件
-const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
+const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId }) => {
+  const isSelected = selectedId === component.id;
   const [{ isDragging }, drag] = useDrag({
     type: 'CANVAS_ITEM',
     item: { id: component.id },
@@ -209,16 +251,17 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize }) => {
   const styleMap = {
     TEXT: {
       backgroundColor: 'transparent',
-      border: 'none',
+      border: isSelected ? '1px solid #ff0000' : 'none',
       color: `rgb(${component.properties.red || 0}, ${component.properties.green || 0}, ${component.properties.blue || 0})`,
       fontSize: `${component.properties.fontSize || 12}px`,
     },
     DEFAULT: {
       backgroundColor: `rgb(${component.properties.red || 0}, ${component.properties.green || 0}, ${component.properties.blue || 0})`,
-      border: '1px solid #2980b9',
+      border: isSelected ? '1px solid #ff0000' : '1px solid #2980b9',
       color: 'white'
     }
   };
+  
 
   const resizeHandles = component.type === 'TEXT' ? [] : ['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne'];
 

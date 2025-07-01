@@ -17,7 +17,7 @@ const App = () => {
     const newComponent = {
       ...component,
       id: `comp_${Date.now()}`,
-      name: `frame_${components.length + 1}`
+      name: component.name || `frame_${components.length + 1}`
     };
     setComponents([...components, newComponent]);
     setSelectedId(newComponent.id);
