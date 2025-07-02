@@ -2,11 +2,11 @@ import { CANVAS_CONFIG } from "../config/canvasConfig.js";
 
 // src/lib/jass-generator.js
 const generateJassCode = (components) => {
-  let code = "// 自动生成的War3 UI代码\n";
+  let code = `// 自动生成的War3 UI代码\n`;
   code += "function InitCustomUI takes nothing returns nothing\n";
-  
+
   components.forEach(comp => {
-    switch(comp.type) {
+    switch (comp.type) {
       case 'IMAGE_BUTTON':
         code += generateButtonCode(comp, components);
         break;
@@ -19,16 +19,34 @@ const generateJassCode = (components) => {
       // 其他组件类型...
     }
   });
-  
+
   code += "endfunction\n";
+
+  // 将局部变量转换为全局变量
+  code = convertLocalsToGlobals(code)
+
   return code;
 };
 
 export { generateJassCode };
 
+const convertLocalsToGlobals = (code) => {
+  // 匹配所有局部变量声明
+  // 提取所有Frame变量名
+  const frameVars = [...new Set(Array.from(code.matchAll(/local Frame\s+(\w+)\s+=/g)).map(m => m[1]))];
+
+  // 生成全局声明块
+  const globalsBlock = `globals\n${frameVars.map(v => `    Frame ${v}`).join('\n')}\nendglobals\n\n`;
+
+  // 将local Frame替换为set
+  code = code.replace(/local Frame\s+(\w+)\s+=/g, 'set $1 =')
+
+  return globalsBlock + code;
+}
+
 const generateImageCode = (image, components) => {
   // 获取父级组件
-  let parent = components.find(comp => comp.id === image.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  let parent = components.find(comp => comp.id === image.properties.parentId) || { name: 'GUI', position: { x: 0, y: 0 } }
   // 计算相对位置
   let relativeX = image.position.x - parent.position.x
   let relativeY = image.position.y - parent.position.y
@@ -48,8 +66,8 @@ const generateImageCode = (image, components) => {
 
 const generateButtonCode = (button, components) => {
 
-    // 获取父级组件
-  let parent = components.find(comp => comp.id === button.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  // 获取父级组件
+  let parent = components.find(comp => comp.id === button.properties.parentId) || { name: 'GUI', position: { x: 0, y: 0 } }
   // 计算相对位置
   let relativeX = button.position.x - parent.position.x
   let relativeY = button.position.y - parent.position.y
@@ -75,7 +93,7 @@ const generateButtonCode = (button, components) => {
 
 const generateTextCode = (text, components) => {
   // 获取父级组件
-  let parent = components.find(comp => comp.id === text.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  let parent = components.find(comp => comp.id === text.properties.parentId) || { name: 'GUI', position: { x: 0, y: 0 } }
   // 计算相对位置
   let relativeX = text.position.x - parent.position.x
   let relativeY = text.position.y - parent.position.y
