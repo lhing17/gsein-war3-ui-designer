@@ -208,6 +208,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
 
 // 可拖拽的UI组件
 const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId }) => {
+  const containerRef = useRef(null);
   const isSelected = selectedId === component.id;
   const [{ isDragging }, drag] = useDrag({
     type: 'CANVAS_ITEM',
@@ -235,6 +236,17 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId 
   useEffect(() => {
     setPosition(component.position);
   }, [component.position]);
+
+  useEffect(() => {
+    if (containerRef.current && component.type === 'TEXT') {
+      const observer = new ResizeObserver((entries) => {
+        const { width, height } = entries[0].contentRect;
+        onResize(component.id, { width, height });
+      });
+      observer.observe(containerRef.current);
+      return () => observer.disconnect();
+    }
+  }, [component.type, component.id, onResize]);
 
   const handleResizeStart = (e) => {
     // 阻止事件冒泡，防止触发拖拽
@@ -369,9 +381,12 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId 
         }}
       >
         <div
+          ref={containerRef}
           style={{
-            width: size.width,
-            height: size.height,
+            width: component.type === 'TEXT' ? 'auto' : size.width,
+            height: component.type === 'TEXT' ? 'auto' : size.height,
+            minWidth: component.type === 'TEXT' ? 'max-content' : size.width,
+            minHeight: component.type === 'TEXT' ? 'max-content' : size.height,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
