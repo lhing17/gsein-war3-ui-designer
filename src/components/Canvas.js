@@ -16,6 +16,8 @@ const FAST_STEP = 10;
 
 const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize, onDeleteComponent }) => {
   const [copiedComponent, setCopiedComponent] = useState(null);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const copiedComponentRef = useRef(null); // 添加一个 ref 来存储最新复制的组件
   const canvasRef = useRef(null);
 
@@ -126,6 +128,12 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
     copiedComponentRef.current = copiedComponent;
   }, [copiedComponent]);
 
+  useEffect(() => {
+    const handleClick = () => setShowContextMenu(false);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
+
   return (
     <div
       ref={(node) => {
@@ -133,14 +141,57 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         drop(node);
       }}
       className="canvas"
-      tabIndex={0} // 使div可聚焦以接收键盘事件
+      tabIndex={0}
       style={{
         backgroundColor: '#1c1e2a',
         position: 'relative',
         width: CANVAS_CONFIG.width,
         height: CANVAS_CONFIG.height
       }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setContextMenuPosition({ x: e.clientX, y: e.clientY });
+        setShowContextMenu(true);
+      }}
     >
+      {showContextMenu && (
+        <div
+          style={{
+            position: 'fixed',
+            left: contextMenuPosition.x,
+            top: contextMenuPosition.y,
+            zIndex: 1000,
+            backgroundColor: '#2d2d2d',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            padding: '8px 0',
+            borderRadius: '4px',
+            color: '#fff'
+          }}
+          onClick={() => setShowContextMenu(false)}
+        >
+          <div 
+            onClick={() => selectedId && onDeleteComponent(selectedId)}
+            style={{ padding: '8px 16px', cursor: 'pointer', ':hover': { backgroundColor: '#3d3d3d' } }}
+          >
+            删除（Delete）
+          </div>
+          <div 
+            onClick={() => selectedId && setCopiedComponent(components.find(c => c.id === selectedId))}
+            style={{ padding: '8px 16px', cursor: selectedId ? 'pointer' : 'not-allowed' }}
+          >
+            复制（Ctrl+C）
+          </div>
+          <div 
+            onClick={() => copiedComponentRef.current && onAddComponent({
+              ...copiedComponentRef.current,
+              position: { x: contextMenuPosition.x - canvasRef.current.offsetLeft, y: contextMenuPosition.y - canvasRef.current.offsetTop }
+            })}
+            style={{ padding: '8px 16px', cursor: copiedComponentRef.current ? 'pointer' : 'not-allowed' }}
+          >
+            粘贴（Ctrl+V）
+          </div>
+        </div>
+      )}
       {components.map(component => (
         <DraggableComponent
           key={component.id}
