@@ -7,11 +7,14 @@ const generateJassCode = (components) => {
   
   components.forEach(comp => {
     switch(comp.type) {
-      case 'BUTTON':
-        code += generateButtonCode(comp);
+      case 'IMAGE_BUTTON':
+        code += generateButtonCode(comp, components);
         break;
       case 'TEXT':
         code += generateTextCode(comp, components);
+        break;
+      case 'IMAGE':
+        code += generateImageCode(comp, components);
         break;
       // 其他组件类型...
     }
@@ -23,18 +26,50 @@ const generateJassCode = (components) => {
 
 export { generateJassCode };
 
-const generateButtonCode = (button) => {
+const generateImageCode = (image, components) => {
+  // 获取父级组件
+  let parent = components.find(comp => comp.id === image.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  // 计算相对位置
+  let relativeX = image.position.x - parent.position.x
+  let relativeY = image.position.y - parent.position.y
+  // 计算war3坐标下的相对位置
+  let war3RelativeX = parseFloat((relativeX / CANVAS_CONFIG.width * 0.8).toFixed(4));
+  let war3RelativeY = parseFloat((relativeY / CANVAS_CONFIG.height * 0.6).toFixed(4));
+  // 计算war3坐标下的宽度和高度
+  let war3Width = parseFloat((image.size.width / CANVAS_CONFIG.width * 0.8).toFixed(4));
+  let war3Height = parseFloat((image.size.height / CANVAS_CONFIG.height * 0.6).toFixed(4));
+  // 生成jass代码
+  return `
+    // 创建图片: ${image.name || '未命名图片'}
+    local Frame ${image.name}Widget = Frame.newImage(${parent.name}, "war3mapImported\\${image.properties.image || 'help.tga'}", ${war3Width}, ${war3Height})
+    call ${image.name}Widget.setPoint(TOPLEFT, ${parent.name}, TOPLEFT, ${war3RelativeX}, ${war3RelativeY})
+  `
+}
+
+const generateButtonCode = (button, components) => {
+
+    // 获取父级组件
+  let parent = components.find(comp => comp.id === button.properties.parentId) || {name: 'GUI', position: {x: 0, y: 0}}
+  // 计算相对位置
+  let relativeX = button.position.x - parent.position.x
+  let relativeY = button.position.y - parent.position.y
+  // 计算war3坐标下的相对位置
+  let war3RelativeX = parseFloat((relativeX / CANVAS_CONFIG.width * 0.8).toFixed(4));
+  let war3RelativeY = parseFloat((relativeY / CANVAS_CONFIG.height * 0.6).toFixed(4));
+  // 计算war3坐标下的宽度和高度
+  let war3Width = parseFloat((button.size.width / CANVAS_CONFIG.width * 0.8).toFixed(4));
+  let war3Height = parseFloat((button.size.height / CANVAS_CONFIG.height * 0.6).toFixed(4));
   return `
     // 创建按钮: ${button.name || '未命名按钮'}
-    local framehandle ${button.name} = BlzCreateFrame("ScriptDialogButton", BlzGetOriginFrame(ORIGIN_FRAME_GAME_UI, 0), 0, 0)
-    call BlzFrameSetAbsPoint(${button.name}, FRAMEPOINT_CENTER, ${button.position.x}, ${button.position.y})
-    call BlzFrameSetSize(${button.name}, ${button.size.width}, ${button.size.height})
-    call BlzFrameSetText(${button.name}, "${button.properties.text || ''}")
-    
-    // 按钮事件
-    local trigger ${button.name}Trigger = CreateTrigger()
-    call BlzTriggerRegisterFrameEvent(${button.name}Trigger, ${button.name}, FRAMEEVENT_CONTROL_CLICK)
-    call TriggerAddAction(${button.name}Trigger, function ${button.events && button.events.onClick || 'DoNothing'})
+    local Frame ${button.name}Widget = Frame.newImageButton1(${parent.name}, "war3mapImported\\${button.properties.image || 'help.tga'}", ${war3Width}, ${war3Height})
+    call ${button.name}Widget.setPoint(TOPLEFT, ${parent.name}, TOPLEFT, ${war3RelativeX}, ${war3RelativeY})
+
+    local Frame ${button.name}Button = Frame.newTextButton(${button.name}Widget)
+    call ${button.name}Button.setAllPoints(${button.name}Widget)
+    call ${button.name}Button.registerEvent(FRAME_EVENT_PRESSED, function ${button.events && button.events.onClick || 'DoNothing'})
+    call ${button.name}Button.registerEvent(FRAME_EVENT_ENTER, function ${button.events && button.events.onEnter || 'DoNothing'})
+    call ${button.name}Button.registerEvent(FRAME_EVENT_LEAVE, function ${button.events && button.events.onLeave || 'DoNothing'})
+
   `;
 };
 
