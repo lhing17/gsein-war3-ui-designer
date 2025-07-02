@@ -155,7 +155,7 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
               />
             </FormGroup>
           )}
-          
+
           <FormGroup label="字体大小">
             <NumericInput
               value={component.properties.fontSize || 12}
@@ -168,23 +168,32 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
 
         </>
       )}
-      {component.type === 'IMAGE' && (
-        <FormGroup label="图片">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => {
-              const file = e.target.files[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                  handlePropertyChange('imageSrc', event.target.result);
-                };
-                reader.readAsDataURL(file);
-              }
-            }}
-          />
-        </FormGroup>
+      {component.type === 'IMAGE' || component.type === 'IMAGE_BUTTON' && (
+        <>
+          <FormGroup label="图片">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => {
+                const file = e.target.files[0];
+                if (file) {
+                  handlePropertyChange('imageName', file.name);
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    handlePropertyChange('imageSrc', event.target.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+          </FormGroup>
+          <FormGroup label="图片名称">
+            <InputGroup
+              value={component.properties.imageName || ''}
+              disabled
+            />
+          </FormGroup>
+        </>
       )}
 
     </div>

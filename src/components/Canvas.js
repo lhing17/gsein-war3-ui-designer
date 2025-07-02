@@ -394,7 +394,7 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId 
             ...(styleMap[component.type] || styleMap.DEFAULT)
           }}
         >
-          {component.type === 'IMAGE' && component.properties.imageSrc ? (
+          {component.type === 'IMAGE' || component.type === 'IMAGE_BUTTON' && component.properties.imageSrc ? (
             <img
               src={component.properties.imageSrc}
               alt=""
