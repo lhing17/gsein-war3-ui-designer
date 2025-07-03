@@ -1,17 +1,20 @@
 // src/App.js
 import { useState } from 'react';
-import { Classes } from '@blueprintjs/core';
+import { Classes, Button } from '@blueprintjs/core';
 import Toolbox from './components/Toolbox.js';
 import Canvas from './components/Canvas.js';
 import PropertyPanel from './components/PropertyPanel.js';
 import CodePreview from './components/CodePreview.js';
 import { generateJassCode } from './lib/jass-generator.js';
 import { CANVAS_CONFIG } from './config/canvasConfig.js';
+import "normalize.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
+// include blueprint-icons.css for icon font support
 
 const App = () => {
   const [components, setComponents] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  
+
   // 添加新组件
   const addComponent = (component) => {
     const newComponent = {
@@ -22,7 +25,7 @@ const App = () => {
     setComponents([...components, newComponent]);
     setSelectedId(newComponent.id);
   };
-  
+
   // 移动组件
   const moveComponent = (id, newPosition) => {
     // 检查是否超出边界
@@ -39,26 +42,26 @@ const App = () => {
     if (newPosition.y + (item.size?.height || 40) > CANVAS_CONFIG.height) {
       newPosition.y = CANVAS_CONFIG.height - (item.size?.height || 40);
     }
-    setComponents(components.map(comp => 
+    setComponents(components.map(comp =>
       comp.id === id ? { ...comp, position: newPosition } : comp
     ));
     setSelectedId(id);
   };
-  
+
   // 更新组件属性
   const resizeComponent = (id, newSize) => {
-    setComponents(components.map(comp => 
+    setComponents(components.map(comp =>
       comp.id === id ? { ...comp, size: newSize } : comp
     ));
   };
-  
+
   // 更新组件属性
   const updateComponent = (id, updates) => {
-    setComponents(components.map(comp => 
+    setComponents(components.map(comp =>
       comp.id === id ? { ...comp, ...updates } : comp
     ));
   };
-  
+
   // 删除组件
   const deleteComponent = (id) => {
     // 如果要删除的组件有子组件，将子组件的ID设置为null
@@ -66,21 +69,47 @@ const App = () => {
     setComponents(items.filter(comp => comp.id !== id));
     setSelectedId(null);
   };
-  
+
   // 生成JASS代码
   const jassCode = generateJassCode(components);
-  
+
   return (
-    <div className={Classes.DARK} style={{ 
-      display: 'flex', 
+    <div className={Classes.DARK} style={{
+      display: 'flex',
       height: '100vh',
       backgroundColor: '#1a1c25',
       color: '#f5f8fa'
     }}>
-      <Toolbox />
-      
-      <div style={{  display: 'flex', flexDirection: 'column', width: CANVAS_CONFIG.width}}>
-        <Canvas 
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '200px',
+          backgroundColor: '#252836',
+          padding: '16px 0',
+          borderRight: '1px solid #1a1c25'
+        }}>
+        <Toolbox />
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          padding: '10px 20px',
+          borderBottom: '1px solid #394b59'
+        }}>
+
+          <h3 style={{ color: '#ecf0f1', marginTop: 0 }}>功能按钮区</h3>
+          <Button
+            text="保存设计"
+            intent="success"
+            onClick={() => console.log('保存功能待实现')}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', width: CANVAS_CONFIG.width }}>
+        <Canvas
           components={components}
           onAddComponent={addComponent}
           onMoveComponent={moveComponent}
@@ -89,11 +118,11 @@ const App = () => {
           onSelect={setSelectedId}
           onDeleteComponent={deleteComponent}
         />
-        
+
         <CodePreview code={jassCode} />
       </div>
-      
-      <PropertyPanel 
+
+      <PropertyPanel
         components={components}
         component={components.find(c => c.id === selectedId)}
         onUpdate={updateComponent}
