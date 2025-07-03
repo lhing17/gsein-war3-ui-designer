@@ -56,10 +56,16 @@ const generateImageCode = (image, components) => {
   // 计算war3坐标下的宽度和高度
   let war3Width = parseFloat((image.size.width / CANVAS_CONFIG.width * 0.8).toFixed(4));
   let war3Height = parseFloat((image.size.height / CANVAS_CONFIG.height * 0.6).toFixed(4));
+
+  // 处理图片名称
+  let imageName = image.properties.imageName
+  // imageName去掉后缀，拼接上.tga
+  imageName = imageName?.replace(/\.\w+$/, '') + '.tga'
+
   // 生成jass代码
   return `
     // 创建图片: ${image.name || '未命名图片'}
-    local Frame ${image.name}Widget = Frame.newImage(${parent.name}, "war3mapImported\\${image.properties.image || 'help.tga'}", ${war3Width}, ${war3Height})
+    local Frame ${image.name}Widget = Frame.newImage(${parent.name}, "war3mapImported\\${imageName || 'help.tga'}", ${war3Width}, ${war3Height})
     call ${image.name}Widget.setPoint(TOPLEFT, ${parent.name}, TOPLEFT, ${war3RelativeX}, ${war3RelativeY})
   `
 }
@@ -77,9 +83,16 @@ const generateButtonCode = (button, components) => {
   // 计算war3坐标下的宽度和高度
   let war3Width = parseFloat((button.size.width / CANVAS_CONFIG.width * 0.8).toFixed(4));
   let war3Height = parseFloat((button.size.height / CANVAS_CONFIG.height * 0.6).toFixed(4));
+
+  // 处理图片名称
+  let imageName = button.properties.imageName
+  // imageName去掉后缀，拼接上.tga
+  imageName = imageName?.replace(/\.\w+$/, '') + '.tga'
+
+
   return `
     // 创建按钮: ${button.name || '未命名按钮'}
-    local Frame ${button.name}Widget = Frame.newImageButton1(${parent.name}, "war3mapImported\\${button.properties.image || 'help.tga'}", ${war3Width}, ${war3Height})
+    local Frame ${button.name}Widget = Frame.newImageButton1(${parent.name}, "war3mapImported\\${imageName || 'help.tga'}", ${war3Width}, ${war3Height})
     call ${button.name}Widget.setPoint(TOPLEFT, ${parent.name}, TOPLEFT, ${war3RelativeX}, ${war3RelativeY})
 
     local Frame ${button.name}Button = Frame.newTextButton(${button.name}Widget)

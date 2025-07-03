@@ -168,7 +168,7 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
 
         </>
       )}
-      {component.type === 'IMAGE' || component.type === 'IMAGE_BUTTON' && (
+      {(component.type === 'IMAGE' || component.type === 'IMAGE_BUTTON') && (
         <>
           <FormGroup label="图片">
             <input
@@ -177,10 +177,18 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
               onChange={e => {
                 const file = e.target.files[0];
                 if (file) {
-                  handlePropertyChange('imageName', file.name);
+                  // 先保存文件名，以便在回调中使用
+                  const fileName = file.name;
                   const reader = new FileReader();
                   reader.onload = (event) => {
-                    handlePropertyChange('imageSrc', event.target.result);
+                    // 在同一次更新中设置两个属性
+                    onUpdate(component.id, {
+                      properties: {
+                        ...component.properties,
+                        imageName: fileName,
+                        imageSrc: event.target.result
+                      }
+                    });
                   };
                   reader.readAsDataURL(file);
                 }
