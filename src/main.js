@@ -10,8 +10,9 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(app.getAppPath(), 'src', 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
       webSecurity: false
     },
     title: 'War3 UI设计器',
@@ -28,6 +29,8 @@ const createWindow = () => {
   // 打开开发者工具
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
+    // 可以在这里添加日志来检查preload脚本是否正确加载
+    console.log('Preload path:', path.join(app.getAppPath(), 'src', 'preload.js'));
   }
 };
 

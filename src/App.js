@@ -73,10 +73,16 @@ const App = () => {
   // 生成JASS代码
   const jassCode = generateJassCode(components);
   const handleSave = () => {
-    window.electron.ipcRenderer.invoke('save-jass', {
-      content: jassCode,
-      defaultPath: 'ui_design.j'
-    });
+    if (window.api && window.api.saveJass) {
+      window.api.saveJass({
+        content: jassCode,
+        defaultPath: 'ui_design.j'
+      }).catch(err => console.error('保存失败:', err));
+    } else {
+      console.error('API未正确加载，无法保存文件');
+      // 可以在这里添加一个用户提示
+      alert('保存功能暂时不可用，请检查开发者控制台');
+    }
   };
 
   return (
