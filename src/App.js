@@ -72,6 +72,12 @@ const App = () => {
 
   // 生成JASS代码
   const jassCode = generateJassCode(components);
+  const handleSave = () => {
+    window.electron.ipcRenderer.invoke('save-jass', {
+      content: jassCode,
+      defaultPath: 'ui_design.j'
+    });
+  };
 
   return (
     <div className={Classes.DARK} style={{
@@ -100,10 +106,11 @@ const App = () => {
         }}>
 
           <h3 style={{ color: '#ecf0f1', marginTop: 0 }}>功能按钮区</h3>
+          // 在按钮的onClick中调用
           <Button
             text="保存设计"
             intent="success"
-            onClick={() => console.log('保存功能待实现')}
+            onClick={handleSave}
           />
         </div>
       </div>

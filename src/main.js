@@ -1,6 +1,7 @@
 // src/main.js
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
+import fs from 'fs';
 
 let mainWindow;
 
@@ -38,4 +39,17 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+// 在主进程中添加
+ipcMain.handle('save-jass', async (event, { content, defaultPath }) => {
+  const { filePath } = await dialog.showSaveDialog({
+    defaultPath,
+    filters: [{ name: 'JASS Files', extensions: ['j'] }]
+  });
+  if (filePath) {
+    fs.writeFileSync(filePath, content);
+    return { success: true, path: filePath };
+  }
+  return { success: false };
 });
