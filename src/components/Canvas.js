@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useRef } from 'react';
-import { useDrop, useDrag } from 'react-dnd';
-import { Resizable } from 'react-resizable';
-import { CANVAS_CONFIG } from '../config/canvasConfig.js';
+const react = require('react');
+const { useState, useEffect } = react;
+const { useRef } = react;
+const { useDrop, useDrag } = require('react-dnd');
+const { Resizable } = require('react-resizable');
+const { CANVAS_CONFIG } = require('../config/canvasConfig.js');
 
 // 定义键盘按键常量
 const DELETE_KEY = 'Delete';
@@ -14,7 +15,14 @@ const ARROW_RIGHT_KEY = 'ArrowRight';
 const NORMAL_STEP = 1;
 const FAST_STEP = 10;
 
-const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSelect, onResize, onDeleteComponent }) => {
+function Canvas(props) {
+  const components = props.components;
+  const onMoveComponent = props.onMoveComponent;
+  const onAddComponent = props.onAddComponent;
+  const selectedId = props.selectedId;
+  const onSelect = props.onSelect;
+  const onResize = props.onResize;
+  const onDeleteComponent = props.onDeleteComponent;
   const [copiedComponent, setCopiedComponent] = useState(null);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -22,9 +30,9 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
   const canvasRef = useRef(null);
 
   // 处理从工具箱拖入，或在画布上拖动
-  const [, drop] = useDrop({
+  const dropResult = useDrop({
     accept: ['TOOLBOX_ITEM', 'CANVAS_ITEM'],
-    drop: (item, monitor) => {
+    drop: function(item, monitor) {
       const offset = monitor.getClientOffset();
       const canvasRect = canvasRef.current.getBoundingClientRect();
 
@@ -41,7 +49,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         // 添加新组件
         let props = {
           type: item.type,
-          position,
+          position: position,
           size: { width: 100, height: 40 },
         }
 
@@ -53,14 +61,15 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         onAddComponent(props);
       } else {
         // 否则直接移动组件
-
         onMoveComponent(item.id, position);
       }
     }
   });
 
+  const drop = dropResult[1];
+
   // 处理键盘事件
-  useEffect(() => {
+  react.useEffect(() => {
     const handleKeyDown = (e) => {
       // 使用delete键删除组件
       if (e.key === DELETE_KEY && selectedId) {
@@ -92,11 +101,10 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
           newPosition.y = component.position.y - offset;
         }
         
-        onAddComponent({
-          ...component,
+        onAddComponent(Object.assign({}, component, {
           position: newPosition,
           name: `copy_${component.name}`
-        });
+        }));
       }
       // 使用方向键移动组件
       if (selectedId && [ARROW_UP_KEY, ARROW_DOWN_KEY, ARROW_LEFT_KEY, ARROW_RIGHT_KEY].includes(e.key)) {
@@ -104,7 +112,7 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
         const step = e.shiftKey ? FAST_STEP : NORMAL_STEP; // 按住Shift键移动更快
         const component = components.find(c => c.id === selectedId);
         if (component) {
-          const newPosition = { ...component.position };
+          const newPosition = Object.assign({}, component.position);
           switch (e.key) {
             case ARROW_UP_KEY: newPosition.y -= step; break;
             case ARROW_DOWN_KEY: newPosition.y += step; break;
@@ -124,11 +132,11 @@ const Canvas = ({ components, onMoveComponent, onAddComponent, selectedId, onSel
   }, [selectedId, onDeleteComponent, onMoveComponent, components]);
 
   // 当 copiedComponent 状态更新时，同步更新 ref
-  useEffect(() => {
+  react.useEffect(() => {
     copiedComponentRef.current = copiedComponent;
   }, [copiedComponent]);
 
-  useEffect(() => {
+  react.useEffect(() => {
     const handleClick = () => setShowContextMenu(false);
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
@@ -409,4 +417,4 @@ const DraggableComponent = ({ component, onMove, onSelect, onResize, selectedId 
   );
 };
 
-export default Canvas;
+module.exports = Canvas;

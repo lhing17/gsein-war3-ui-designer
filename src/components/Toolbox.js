@@ -1,7 +1,7 @@
 // src/components/Toolbox.js
-import { useDrag } from 'react-dnd';
+const { useDrag } = require('react-dnd');
 
-const ToolboxItem = ({ type, label, icon }) => {
+const ToolboxItem = function({ type, label, icon }) {
   const [{ isDragging }, drag] = useDrag({
     type: 'TOOLBOX_ITEM',
     item: { type },
@@ -30,7 +30,7 @@ const ToolboxItem = ({ type, label, icon }) => {
   );
 };
 
-const Toolbox = () => {
+const Toolbox = function() {
   const components = [
     { type: 'IMAGE_BUTTON', label: '图片按钮', icon: '🔘' },
     { type: 'TEXT', label: '文本', icon: '📝' },
@@ -58,4 +58,4 @@ const Toolbox = () => {
   );
 };
 
-export default Toolbox;
+module.exports = Toolbox;

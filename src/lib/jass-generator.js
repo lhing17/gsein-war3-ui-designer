@@ -1,4 +1,4 @@
-import { CANVAS_CONFIG } from "../config/canvasConfig.js";
+const { CANVAS_CONFIG } = require("../config/canvasConfig.js");
 
 // src/lib/jass-generator.js
 const generateJassCode = (components) => {

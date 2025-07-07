@@ -1,7 +1,7 @@
 // src/main.js
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import path from 'path';
-import fs from 'fs';
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 
@@ -10,27 +10,27 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(app.getAppPath(), 'src', 'preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false
     },
     title: 'War3 UI设计器',
-    icon: path.join(app.getAppPath(), 'public/icon.png')
+    icon: path.join(__dirname, 'public/icon.png')
   });
 
   // 加载React应用
   mainWindow.loadURL(
     process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : `file://${path.join(app.getAppPath(), 'build/index.html')}`
+      ? 'http://localhost:8080'
+      : `file://${path.join(__dirname, 'dist/index.html')}`
   );
 
   // 打开开发者工具
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
     // 可以在这里添加日志来检查preload脚本是否正确加载
-    console.log('Preload path:', path.join(app.getAppPath(), 'src', 'preload.js'));
+    console.log('Preload path:', path.join(__dirname, 'preload.js'));
   }
 };
 

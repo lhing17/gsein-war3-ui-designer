@@ -1,7 +1,10 @@
 // src/components/PropertyPanel.js
-import { FormGroup, InputGroup, NumericInput, Switch } from '@blueprintjs/core';
+const { FormGroup, InputGroup, NumericInput, Switch } = require('@blueprintjs/core');
+function PropertyPanel(props) {
+  const components = props.components;
+  const component = props.component;
+  const onUpdate = props.onUpdate;
 
-const PropertyPanel = ({ components, component, onUpdate }) => {
   if (!component) {
     return (
       <div style={{
@@ -15,11 +18,11 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
     );
   }
 
-  const handleChange = (property, value) => {
+  const handleChange = function(property, value) {
     onUpdate(component.id, { [property]: value });
   };
 
-  const handlePropertyChange = (property, value) => {
+  const handlePropertyChange = function(property, value) {
     onUpdate(component.id, {
       properties: {
         ...component.properties,
@@ -208,4 +211,4 @@ const PropertyPanel = ({ components, component, onUpdate }) => {
   );
 };
 
-export default PropertyPanel;
+module.exports = PropertyPanel;

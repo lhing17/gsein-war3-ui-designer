@@ -1,8 +1,8 @@
 // src/components/CodePreview.js
-import React from 'react';
-import { CANVAS_CONFIG } from '../config/canvasConfig.js';
+const { CANVAS_CONFIG } = require('../config/canvasConfig.js');
 
-const CodePreview = ({ code }) => {
+function CodePreview(props) {
+  const code = props.code;
   return (
     <div style={{ 
       width: CANVAS_CONFIG.width,
@@ -25,6 +25,6 @@ const CodePreview = ({ code }) => {
       </pre>
     </div>
   );
-};
+}
 
-export default CodePreview;
+module.exports = CodePreview;

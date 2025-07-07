@@ -24,4 +24,7 @@ const UIState = {
   version: '1.27' // War3版本
 };
 
-export { UIComponent, UIState };
+module.exports = {
+  UIComponent,
+  UIState
+};

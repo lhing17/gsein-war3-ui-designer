@@ -1,14 +1,14 @@
 // src/App.js
-import { useState } from 'react';
-import { Classes, Button } from '@blueprintjs/core';
-import Toolbox from './components/Toolbox.js';
-import Canvas from './components/Canvas.js';
-import PropertyPanel from './components/PropertyPanel.js';
-import CodePreview from './components/CodePreview.js';
-import { generateJassCode } from './lib/jass-generator.js';
-import { CANVAS_CONFIG } from './config/canvasConfig.js';
-import "normalize.css";
-import "@blueprintjs/core/lib/css/blueprint.css";
+const { useState } = require('react');
+const { Classes, Button } = require('@blueprintjs/core');
+const Toolbox = require('./components/Toolbox.js');
+const Canvas = require('./components/Canvas.js');
+const PropertyPanel = require('./components/PropertyPanel.js');
+const CodePreview = require('./components/CodePreview.js');
+const { generateJassCode } = require('./lib/jass-generator.js');
+const { CANVAS_CONFIG } = require('./config/canvasConfig.js');
+require("normalize.css");
+require("@blueprintjs/core/lib/css/blueprint.css");
 // include blueprint-icons.css for icon font support
 
 const App = () => {
@@ -144,4 +144,4 @@ const App = () => {
   );
 };
 
-export default App;
+module.exports = App;
