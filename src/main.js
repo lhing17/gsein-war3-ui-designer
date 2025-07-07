@@ -20,11 +20,21 @@ const createWindow = () => {
   });
 
   // 加载React应用
-  mainWindow.loadURL(
-    process.env.NODE_ENV === 'development'
-      ? 'http://localhost:8080'
-      : `file://${path.join(__dirname, 'dist/index.html')}`
-  );
+  // 检查多种方式来确定是否为开发模式
+  const isDev = process.env.NODE_ENV === 'development' || 
+                process.argv.includes('--dev') || 
+                process.argv.includes('--development');
+  
+  console.log('Command line arguments:', process.argv);
+  console.log('Current NODE_ENV:', process.env.NODE_ENV);
+  console.log('Is development mode:', isDev);
+  
+  const loadUrl = isDev
+    ? 'http://localhost:8080'
+    : `file://${path.join(__dirname, '../dist/index.html')}`;
+  
+  console.log('Loading URL:', loadUrl);
+  mainWindow.loadURL(loadUrl);
 
   // 打开开发者工具
   if (process.env.NODE_ENV === 'development') {

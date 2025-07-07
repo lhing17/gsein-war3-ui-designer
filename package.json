@@ -6,10 +6,11 @@
   "homepage": ".",
   "type": "commonjs",
   "scripts": {
-    "start": "electron .",
-    "dev": "concurrently \"npm run start-react\" \"npm run start-electron\"",
+    "start": "cross-env NODE_ENV=development electron .",
+    "dev": "cross-env NODE_ENV=development concurrently \"npm run start-react\" \"npm run start-electron\"",
     "start-react": "webpack serve --mode development --open",
-    "start-electron": "wait-on http://localhost:8080 && electron .",
+    "start-electron": "wait-on http://localhost:8080 && cross-env NODE_ENV=development electron . --dev",
+    "start-electron-direct": "cross-env NODE_ENV=development electron . --dev",
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,6 +43,7 @@
     "@types/react": "^18.3.23",
     "babel-loader": "^10.0.0",
     "concurrently": "^9.2.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.3",
     "react-scripts": "^5.0.1",
