@@ -1,6 +1,7 @@
 // src/App.js
 const { useState } = require('react');
-const { Classes, Button } = require('@blueprintjs/core');
+const { Classes } = require('@blueprintjs/core');
+const FunctionButtons = require('./components/FunctionButtons');
 const Toolbox = require('./components/Toolbox.js');
 const Canvas = require('./components/Canvas.js');
 const PropertyPanel = require('./components/PropertyPanel.js');
@@ -103,22 +104,7 @@ const App = () => {
         }}>
         <Toolbox />
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-          padding: '10px 20px',
-          borderBottom: '1px solid #394b59'
-        }}>
-
-          <h3 style={{ color: '#ecf0f1', marginTop: 0 }}>功能按钮区</h3>
-          // 在按钮的onClick中调用
-          <Button
-            text="保存设计"
-            intent="success"
-            onClick={handleSave}
-          />
-        </div>
+        <FunctionButtons handleSave={handleSave} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', width: CANVAS_CONFIG.width }}>
