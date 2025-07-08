@@ -1,5 +1,6 @@
 // src/components/PngToTgaConverter.js
-const { useState, useRef } = require('react');
+const React = require('react');
+const { useState, useRef } = React;
 const { Button, FormGroup, FileInput, Card, Elevation, Toaster, Position, Intent } = require('@blueprintjs/core');
 
 function PngToTgaConverter() {
@@ -8,6 +9,13 @@ function PngToTgaConverter() {
   const [previewSrc, setPreviewSrc] = useState(null);
   const fileInputRef = useRef(null);
   const toasterRef = useRef(null);
+  
+  // 初始化toaster
+  if (!toasterRef.current && typeof document !== 'undefined') {
+    toasterRef.current = Toaster.create({
+      position: Position.TOP
+    });
+  }
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -54,7 +62,7 @@ function PngToTgaConverter() {
           // 调用Electron的API进行转换
           const result = await window.api.convertPngToTga({
             base64Data,
-            filePath: defaultPath
+            imageName: selectedFile.name
           });
           
           if (result.success) {
@@ -143,8 +151,6 @@ function PngToTgaConverter() {
           重置
         </Button>
       </div>
-      
-      <Toaster ref={toasterRef} position={Position.TOP} />
     </Card>
   );
 }

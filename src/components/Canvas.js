@@ -1,6 +1,6 @@
-const react = require('react');
-const { useState, useEffect } = react;
-const { useRef } = react;
+const React = require('react');
+const { useState, useEffect } = React;
+const { useRef } = React;
 const { useDrop, useDrag } = require('react-dnd');
 const { Resizable } = require('react-resizable');
 const { CANVAS_CONFIG } = require('../config/canvasConfig.js');
@@ -69,7 +69,7 @@ function Canvas(props) {
   const drop = dropResult[1];
 
   // 处理键盘事件
-  react.useEffect(() => {
+  React.useEffect(() => {
     const handleKeyDown = (e) => {
       // 使用delete键删除组件
       if (e.key === DELETE_KEY && selectedId) {
@@ -132,11 +132,11 @@ function Canvas(props) {
   }, [selectedId, onDeleteComponent, onMoveComponent, components]);
 
   // 当 copiedComponent 状态更新时，同步更新 ref
-  react.useEffect(() => {
+  React.useEffect(() => {
     copiedComponentRef.current = copiedComponent;
   }, [copiedComponent]);
 
-  react.useEffect(() => {
+  React.useEffect(() => {
     const handleClick = () => setShowContextMenu(false);
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
