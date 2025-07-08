@@ -3,6 +3,8 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const tga = require('tga');
+const { PNG } = require('pngjs');
+const { getConfig, saveConfig } = require('./lib/config-store');
 
 let mainWindow;
 
@@ -55,21 +57,76 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// 保存jass
-ipcMain.handle('save-jass', async (event, { content, defaultPath }) => {
+// 获取配置
+ipcMain.handle('get-config', async () => {
+  return getConfig();
+});
+
+// 保存配置
+ipcMain.handle('save-config', async (event, config) => {
+  const success = saveConfig(config);
+  return { success };
+});
+
+// 选择JASS文件路径
+ipcMain.handle('select-jass-path', async () => {
   const { filePath } = await dialog.showSaveDialog({
-    defaultPath,
+    defaultPath: 'ui_design.j',
     filters: [{ name: 'JASS Files', extensions: ['j'] }]
   });
-  if (filePath) {
-    fs.writeFileSync(filePath, content);
-    return { success: true, path: filePath };
+  return { path: filePath || '' };
+});
+
+// 选择TGA文件夹路径
+ipcMain.handle('select-tga-folder', async () => {
+  const { filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+  return { path: filePaths && filePaths.length > 0 ? filePaths[0] : '' };
+});
+
+// 保存jass
+ipcMain.handle('save-jass', async (event, { content }) => {
+  const config = getConfig();
+  if (!config.jassFilePath) {
+    // 如果没有配置路径，则显示对话框
+    const { filePath } = await dialog.showSaveDialog({
+      defaultPath: 'ui_design.j',
+      filters: [{ name: 'JASS Files', extensions: ['j'] }]
+    });
+    if (filePath) {
+      config.jassFilePath = filePath;
+      saveConfig(config);
+    } else {
+      return { success: false, message: '未选择保存路径' };
+    }
   }
-  return { success: false };
+  
+  try {
+    fs.writeFileSync(config.jassFilePath, content);
+    return { success: true, path: config.jassFilePath };
+  } catch (error) {
+    console.error('保存JASS文件失败:', error);
+    return { success: false, message: error.message };
+  }
 });
 
 // 将base64存储的png转为tga
-ipcMain.handle('convert-png-to-tga', async (event, { base64Data, filePath }) => {
+ipcMain.handle('convert-png-to-tga', async (event, { base64Data, imageName }) => {
+  const config = getConfig();
+  let filePath = '';
+  
+  if (config.tgaFolderPath) {
+    filePath = path.join(config.tgaFolderPath, imageName.replace('.png', '.tga'));
+  } else {
+    // 如果没有配置TGA文件夹路径，则使用JASS文件所在的文件夹
+    if (config.jassFilePath) {
+      const jassDir = path.dirname(config.jassFilePath);
+      filePath = path.join(jassDir, imageName.replace('.png', '.tga'));
+    } else {
+      return { success: false, message: '未配置保存路径' };
+    }
+  }
   try {
     // 从base64中提取数据
     const base64Image = base64Data.replace(/^data:image\/png;base64,/, '');
@@ -77,7 +134,6 @@ ipcMain.handle('convert-png-to-tga', async (event, { base64Data, filePath }) => 
     const imageBuffer = Buffer.from(base64Image, 'base64');
 
     // 使用pngjs解析PNG图像
-    const PNG = require('pngjs').PNG;
     const png = PNG.sync.read(imageBuffer);
 
     // 获取宽度、高度和像素数据

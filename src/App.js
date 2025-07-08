@@ -1,5 +1,6 @@
 // src/App.js
-const { useState } = require('react');
+const React = require('react');
+const { useState } = React;
 const { Classes, Tabs, Tab } = require('@blueprintjs/core');
 const FunctionButtons = require('./components/FunctionButtons');
 const Toolbox = require('./components/Toolbox.js');
@@ -7,11 +8,12 @@ const Canvas = require('./components/Canvas.js');
 const PropertyPanel = require('./components/PropertyPanel.js');
 const CodePreview = require('./components/CodePreview.js');
 const PngToTgaConverter = require('./components/PngToTgaConverter.js');
+const ConfigPanel = require('./components/ConfigPanel.js');
 const { generateJassCode } = require('./lib/jass-generator.js');
 const { CANVAS_CONFIG } = require('./config/canvasConfig.js');
 require("normalize.css");
 require("@blueprintjs/core/lib/css/blueprint.css");
-// include blueprint-icons.css for icon font support
+// require("@blueprintjs/icons/lib/css/blueprint-icons.css");
 
 const App = () => {
   const [components, setComponents] = useState([]);
@@ -75,36 +77,43 @@ const App = () => {
   // 生成JASS代码
   const jassCode = generateJassCode(components);
   const handleSave = async() => {
-
-    let filePath;
-    if (window.api && window.api.saveJass) {
-      let res = await window.api.saveJass({
-        content: jassCode,
-        defaultPath: 'ui_design.j'
-      }).catch(err => console.error('保存失败:', err));
-      filePath = res.path;
-    } else {
-      console.error('API未正确加载，无法保存文件');
-      // 可以在这里添加一个用户提示
-      alert('保存功能暂时不可用，请检查开发者控制台');
-    }
-    // 遍历components，如果有imageSrc属性，转成tga文件
-    components.forEach(comp => {
-      if (comp.properties.imageSrc) {
-        if (window.api && window.api.convertPngToTga) {
-          // 调用转换函数
-          let tgaPath = filePath.replace('ui_design.j', comp.properties.imageName.replace('.png', '.tga'));
-          window.api.convertPngToTga({
-            base64Data: comp.properties.imageSrc,
-            filePath: tgaPath
-          }).catch(err => console.error('转换失败:', err));
-        } else {
-          console.error('API未正确加载，无法保存文件');
-          // 可以在这里添加一个用户提示
-          alert('保存功能暂时不可用，请检查开发者控制台');
+    try {
+      if (window.api && window.api.saveJass) {
+        // 保存JASS文件
+        const res = await window.api.saveJass({
+          content: jassCode
+        });
+        
+        if (!res.success) {
+          throw new Error(res.message || '保存JASS文件失败');
         }
+        
+        // 遍历components，如果有imageSrc属性，转成tga文件
+        for (const comp of components) {
+          if (comp.properties && comp.properties.imageSrc && comp.properties.imageName) {
+            if (window.api && window.api.convertPngToTga) {
+              // 调用转换函数
+              await window.api.convertPngToTga({
+                base64Data: comp.properties.imageSrc,
+                imageName: comp.properties.imageName
+              }).catch(err => {
+                console.error('转换失败:', err);
+                throw new Error(`转换图片 ${comp.properties.imageName} 失败: ${err.message}`);
+              });
+            } else {
+              throw new Error('API未正确加载，无法转换图片');
+            }
+          }
+        }
+        
+        alert('保存成功！');
+      } else {
+        throw new Error('API未正确加载，无法保存文件');
       }
-    });
+    } catch (error) {
+      console.error('保存失败:', error);
+      alert(`保存失败: ${error.message}`);
+    }
   };
 
   return (
@@ -163,6 +172,15 @@ const App = () => {
           panel={
             <div style={{ padding: '20px', height: 'calc(100vh - 50px)', overflow: 'auto' }}>
               <PngToTgaConverter />
+            </div>
+          } 
+        />
+        <Tab 
+          id="config" 
+          title="配置" 
+          panel={
+            <div style={{ padding: '20px', height: 'calc(100vh - 50px)', overflow: 'auto' }}>
+              <ConfigPanel />
             </div>
           } 
         />
