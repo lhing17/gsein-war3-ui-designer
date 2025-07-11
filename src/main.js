@@ -47,6 +47,12 @@ const createWindow = () => {
   }
 };
 
+// 添加IPC处理程序来记录渲染进程中的日志消息
+ipcMain.handle('log-message', (event, message) => {
+  console.log('从渲染进程收到日志:', message);
+  return { success: true };
+});
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {

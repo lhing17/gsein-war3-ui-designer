@@ -1,31 +1,63 @@
 // src/components/ConfigPanel.js
 const React = require('react');
-const { useState, useEffect } = React;
-const { FormGroup, InputGroup, Button, Card, Elevation, Toaster, Position, Intent } = require('@blueprintjs/core');
+const { useState, useEffect, useRef } = React;
+const { FormGroup, InputGroup, Button, Card, Elevation, Intent } = require('@blueprintjs/core');
 
-// 创建一个toaster实例
-let toaster;
-// 在组件渲染后初始化toaster
-const initToaster = () => {
-  if (!toaster && typeof document !== 'undefined') {
-    toaster = Toaster.create({
-      position: Position.TOP
-    });
-  }
-  return toaster;
+// 创建一个简单的消息显示组件
+const MessageDisplay = ({ message, intent, onClose }) => {
+  const getColor = () => {
+    switch (intent) {
+      case Intent.SUCCESS: return '#0f9960';
+      case Intent.WARNING: return '#d9822b';
+      case Intent.DANGER: return '#db3737';
+      default: return '#137cbd';
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      backgroundColor: getColor(),
+      color: 'white',
+      padding: '10px 15px',
+      borderRadius: '4px',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+      zIndex: 9999,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      minWidth: '200px',
+      maxWidth: '400px'
+    }}>
+      <span>{message}</span>
+      <button 
+        onClick={onClose}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          color: 'white',
+          cursor: 'pointer',
+          marginLeft: '10px',
+          fontSize: '16px'
+        }}
+      >
+        ×
+      </button>
+    </div>
+  );
 };
 
 // 显示消息的辅助函数
 const showToast = (message, intent) => {
-  const t = initToaster();
-  if (t) {
-    t.show({
-      message,
-      intent
-    });
-  } else {
-    console.error('无法显示提示:', message);
+  // 记录日志
+  if (window.api && window.api.logMessage) {
+    window.api.logMessage('显示消息: ' + message);
   }
+  
+  // 使用alert作为简单的消息显示方式
+  alert(message);
 };
 
 const ConfigPanel = () => {

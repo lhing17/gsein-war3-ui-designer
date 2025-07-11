@@ -9,5 +9,8 @@ contextBridge.exposeInMainWorld('api', {
   getConfig: () => ipcRenderer.invoke('get-config'),
   saveConfig: (config) => ipcRenderer.invoke('save-config', config),
   selectJassPath: () => ipcRenderer.invoke('select-jass-path'),
-  selectTgaFolder: () => ipcRenderer.invoke('select-tga-folder')
+  selectTgaFolder: () => ipcRenderer.invoke('select-tga-folder'),
+  
+  // 日志相关
+  logMessage: (message) => ipcRenderer.invoke('log-message', message)
 });

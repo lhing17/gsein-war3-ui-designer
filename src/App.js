@@ -7,7 +7,6 @@ const Toolbox = require('./components/Toolbox.js');
 const Canvas = require('./components/Canvas.js');
 const PropertyPanel = require('./components/PropertyPanel.js');
 const CodePreview = require('./components/CodePreview.js');
-const PngToTgaConverter = require('./components/PngToTgaConverter.js');
 const ConfigPanel = require('./components/ConfigPanel.js');
 const { generateJassCode } = require('./lib/jass-generator.js');
 const { CANVAS_CONFIG } = require('./config/canvasConfig.js');
@@ -163,15 +162,6 @@ const App = () => {
                 component={components.find(c => c.id === selectedId)}
                 onUpdate={updateComponent}
               />
-            </div>
-          } 
-        />
-        <Tab 
-          id="pngToTga" 
-          title="PNG转TGA工具" 
-          panel={
-            <div style={{ padding: '20px', height: 'calc(100vh - 50px)', overflow: 'auto' }}>
-              <PngToTgaConverter />
             </div>
           } 
         />
