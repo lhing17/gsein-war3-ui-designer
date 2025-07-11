@@ -8,6 +8,7 @@ const { getConfig, saveConfig } = require('./lib/config-store');
 
 let mainWindow;
 
+// 创建主窗口
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,

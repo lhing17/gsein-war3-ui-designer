@@ -17,6 +17,7 @@ const defaultConfig = {
 function getConfig() {
   try {
     if (fs.existsSync(configPath)) {
+      console.log("读取配置文件路径:", configPath);
       const configData = fs.readFileSync(configPath, 'utf8');
       return JSON.parse(configData);
     }

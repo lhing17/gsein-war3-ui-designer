@@ -51,7 +51,7 @@ const App = () => {
     setSelectedId(id);
   };
 
-  // 更新组件属性
+  // 调整组件大小
   const resizeComponent = (id, newSize) => {
     setComponents(components.map(comp =>
       comp.id === id ? { ...comp, size: newSize } : comp
